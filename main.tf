@@ -208,7 +208,7 @@ resource "aws_route" "public_internet_gateway" {
 
   route_table_id         = aws_route_table.public[count.index].id
   destination_cidr_block = "0.0.0.0/0"
-  gateway_id             = aws_internet_gateway.this[count.index].id
+  gateway_id             = aws_internet_gateway.this[0].id
 
   timeouts {
     create = "5m"
@@ -220,7 +220,7 @@ resource "aws_route" "public_internet_gateway_ipv6" {
 
   route_table_id              = aws_route_table.public[count.index].id
   destination_ipv6_cidr_block = "::/0"
-  gateway_id                  = aws_internet_gateway.this[count.index].id
+  gateway_id                  = aws_internet_gateway.this[0].id
 }
 
 ################################################################################
