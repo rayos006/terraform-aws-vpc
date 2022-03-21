@@ -454,6 +454,12 @@ variable "outpost_subnet_tags" {
   default     = {}
 }
 
+variable "public_route_table_per_subnet" {
+  description = "Each Subnet gets thier own route table"
+  type        = bool
+  default     = false
+}
+
 variable "public_route_table_tags" {
   description = "Additional tags for the public route tables"
   type        = map(string)
