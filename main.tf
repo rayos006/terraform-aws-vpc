@@ -11,6 +11,7 @@ locals {
   vpc_id = try(aws_vpc_ipv4_cidr_block_association.this[0].vpc_id, aws_vpc.this[0].id, "")
 
   create_vpc = var.create_vpc && var.putin_khuylo
+
 }
 
 ################################################################################
@@ -204,15 +205,45 @@ resource "aws_route_table" "public" {
 }
 
 resource "aws_route" "public_internet_gateway" {
-  count = local.create_vpc && var.create_igw && length(var.public_subnets) > 0 ? length(var.public_subnets) : 0
+  count = local.create_vpc && var.create_igw && length(var.public_subnets) > 0 && length(local.network_firewall) < 0 ? length(var.public_subnets) : 0
 
   route_table_id         = aws_route_table.public[count.index].id
   destination_cidr_block = "0.0.0.0/0"
   gateway_id             = aws_internet_gateway.this[0].id
 
-  lifecycle {
-    ignore_changes = all
+  timeouts {
+    create = "5m"
+  }
 }
+
+data "aws_vpc_endpoint" "firewall_endpoints" {
+  vpc_id       = local.vpc_id
+  tags = {
+    AWSNetworkFirewallManaged = "true"
+  }
+}
+
+data "aws_subnet" "firewall_subnets" {
+  count = length(data.aws_vpc_endpoint.firewall_endpoints) > 0 ? length(data.aws_vpc_endpoint.firewall_endpoints) : 0
+  id       = data.aws_vpc_endpoint.firewall_endpoints[count.index].subnet_ids[0]
+}
+
+
+
+locals {
+ network_firewalls = toset([for e in data.aws_subnet.firewall_subnets : data.aws_vpc_endpoint.firewall_endpoints[e].id])
+}
+
+output "testing" {
+  value = local.network_firewalls
+}
+
+resource "aws_route" "public_firewall_endpoints" {
+  count = local.create_vpc && var.create_igw && length(var.public_subnets) > 0 && length(local.network_firewall) > 0 ? length(var.public_subnets) : 0
+
+  route_table_id         = aws_route_table.public[count.index].id
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id             = 
 
   timeouts {
     create = "5m"
