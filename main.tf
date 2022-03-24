@@ -210,6 +210,12 @@ resource "aws_route" "public_internet_gateway" {
   destination_cidr_block = "0.0.0.0/0"
   gateway_id             = aws_internet_gateway.this[0].id
 
+  lifecycle {
+    ignore_changes = [
+        all
+    ]
+}
+
   timeouts {
     create = "5m"
   }
