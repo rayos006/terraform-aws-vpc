@@ -205,7 +205,7 @@ resource "aws_route_table" "public" {
 }
 
 resource "aws_route" "public_internet_gateway" {
-  count = local.create_vpc && var.create_igw && length(var.public_subnets) > 0 && length(local.network_firewall) < 0 ? length(var.public_subnets) : 0
+  count = local.create_vpc && var.create_igw && length(var.public_subnets) > 0 && length(local.network_firewalls) < 0 ? length(var.public_subnets) : 0
 
   route_table_id         = aws_route_table.public[count.index].id
   destination_cidr_block = "0.0.0.0/0"
@@ -239,7 +239,7 @@ output "testing" {
 }
 
 resource "aws_route" "public_firewall_endpoints" {
-  count = local.create_vpc && var.create_igw && length(var.public_subnets) > 0 && length(local.network_firewall) > 0 ? length(var.public_subnets) : 0
+  count = local.create_vpc && var.create_igw && length(var.public_subnets) > 0 && length(local.network_firewalls) > 0 ? length(var.public_subnets) : 0
 
   route_table_id         = aws_route_table.public[count.index].id
   destination_cidr_block = "0.0.0.0/0"
